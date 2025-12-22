@@ -9,16 +9,16 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 (function analyzeLegendRoutes(params) {
     function coreAnalyze(_a) {
-        var P = _a.P, Qp = _a.Qp, Qr = _a.Qr, Tc = _a.Tc;
+        var P = _a.P, Qp = _a.Qp, Qr = _a.Qr, Tc = _a.Tc, TrRatio = _a.TrRatio;
         // ---- basic validation ----
-        var nums = { P: P, Qp: Qp, Qr: Qr, Tc: Tc };
+        var nums = { P: P, Qp: Qp, Qr: Qr, Tc: Tc, TrRatio: TrRatio };
         for (var _i = 0, _b = Object.entries(nums); _i < _b.length; _i++) {
             var _c = _b[_i], k = _c[0], x = _c[1];
             if (!Number.isFinite(x))
                 throw new Error("\"".concat(k, "\" must be a finite number"));
         }
-        if (Tc <= 0)
-            throw new Error("Tc must be > 0");
+        if (Tc <= 0 || TrRatio <= 0)
+            throw new Error("Tc/TrRatio must be > 0");
         if (Qp < 0 || Qp > 1 || Qr < 0 || Qr > 1) {
             throw new Error("Qp/Qr 通常应在 [0,1]；你现在给的值超界了。");
         }
@@ -106,7 +106,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
                     materials: path2State.materials,
                     products: path2State.products,
                     timeArr: path2State.recycleTimes,
-                    recycleTime: Tc / 16,
+                    recycleTime: Tc * TrRatio,
                     loopRecycle: false,
                 });
                 if (path2State.materials[i - 1] < 1e-20) {
@@ -120,7 +120,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             materials: path2State.materials,
             products: path2State.products,
             timeArr: path2State.recycleTimes,
-            recycleTime: Tc / 16,
+            recycleTime: Tc * TrRatio,
             loopRecycle: false,
         });
         return {
@@ -136,12 +136,13 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
             },
         };
     }
-    var P = params["\u4EA7\u80FD\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Qp = params["\u751F\u4EA7\u54C1\u8D28\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Sp = params["\u751F\u4EA7\u901F\u5EA6\uFF08\u500D\u6570\uFF09"], Tc = params["\u751F\u4EA7\u914D\u65B9\u65F6\u95F4\uFF08\u6298\u7B97\u6210\u6BCF\u4E2A\u4EA7\u54C1\u9700\u8981\u7684\u79D2\u6570\uFF09"], Qr = params["\u5206\u89E3\u54C1\u8D28\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Sr = params["\u5206\u89E3\u901F\u5EA6\uFF08\u500D\u6570\uFF09"], Imps = params.每秒输入原料数;
+    var P = params["\u4EA7\u80FD\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Qp = params["\u751F\u4EA7\u54C1\u8D28\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Sp = params["\u751F\u4EA7\u901F\u5EA6\uFF08\u500D\u6570\uFF09"], Tc = params["\u751F\u4EA7\u914D\u65B9\u65F6\u95F4\uFF08\u6298\u7B97\u6210\u6BCF\u4E2A\u4EA7\u54C1\u9700\u8981\u7684\u79D2\u6570\uFF09"], Qr = params["\u5206\u89E3\u54C1\u8D28\u52A0\u6210\uFF08\u5C0F\u6570\u683C\u5F0F\uFF09"], Sr = params["\u5206\u89E3\u901F\u5EA6\uFF08\u500D\u6570\uFF09"], TrRatio = params["\u5206\u89E3\u914D\u65B9\u65F6\u95F4/\u751F\u4EA7\u914D\u65B9\u65F6\u95F4"], Imps = params.每秒输入原料数;
     var _a = coreAnalyze({
         P: P,
         Qp: Qp,
         Qr: Qr,
         Tc: Tc,
+        TrRatio: TrRatio,
     }), path1Res = _a.path1, path2Res = _a.path2;
     function reportResult(title, _a) {
         var output = _a.output, recycleTimes = _a.recycleTimes, produceTimes = _a.produceTimes;
@@ -183,5 +184,6 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     "生产配方时间（折算成每个产品需要的秒数）": 5,
     "分解品质加成（小数格式）": 0.248,
     "分解速度（倍数）": 1,
+    "分解配方时间/生产配方时间": 1 / 16, // 部分物品如绿色地下传送带为八分之一，请注意检查游戏内配方
     每秒输入原料数: 60,
 });

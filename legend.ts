@@ -5,6 +5,7 @@
   "生产配方时间（折算成每个产品需要的秒数）": number;
   "分解品质加成（小数格式）": number;
   "分解速度（倍数）": number;
+  "分解配方时间/生产配方时间": number;
   每秒输入原料数: number;
 }) {
   function coreAnalyze({
@@ -12,19 +13,21 @@
     Qp,
     Qr,
     Tc,
+    TrRatio,
   }: {
     P: number;
     Qp: number;
     Qr: number;
     Tc: number;
+    TrRatio: number;
   }) {
     // ---- basic validation ----
-    const nums = { P, Qp, Qr, Tc };
+    const nums = { P, Qp, Qr, Tc, TrRatio };
     for (const [k, x] of Object.entries(nums)) {
       if (!Number.isFinite(x))
         throw new Error(`"${k}" must be a finite number`);
     }
-    if (Tc <= 0) throw new Error(`Tc must be > 0`);
+    if (Tc <= 0 || TrRatio <= 0) throw new Error(`Tc/TrRatio must be > 0`);
     if (Qp < 0 || Qp > 1 || Qr < 0 || Qr > 1) {
       throw new Error("Qp/Qr 通常应在 [0,1]；你现在给的值超界了。");
     }
@@ -151,7 +154,7 @@
           materials: path2State.materials,
           products: path2State.products,
           timeArr: path2State.recycleTimes,
-          recycleTime: Tc / 16,
+          recycleTime: Tc * TrRatio,
           loopRecycle: false,
         });
 
@@ -166,7 +169,7 @@
       materials: path2State.materials,
       products: path2State.products,
       timeArr: path2State.recycleTimes,
-      recycleTime: Tc / 16,
+      recycleTime: Tc * TrRatio,
       loopRecycle: false,
     });
 
@@ -191,6 +194,7 @@
     "生产配方时间（折算成每个产品需要的秒数）": Tc,
     "分解品质加成（小数格式）": Qr,
     "分解速度（倍数）": Sr,
+    "分解配方时间/生产配方时间": TrRatio,
     每秒输入原料数: Imps,
   } = params;
 
@@ -199,6 +203,7 @@
     Qp,
     Qr,
     Tc,
+    TrRatio,
   });
 
   function reportResult(
@@ -252,5 +257,6 @@
   "生产配方时间（折算成每个产品需要的秒数）": 5,
   "分解品质加成（小数格式）": 0.248,
   "分解速度（倍数）": 1,
+  "分解配方时间/生产配方时间": 1 / 16, // 部分物品如绿色地下传送带为八分之一，请注意检查游戏内配方
   每秒输入原料数: 60,
 });
